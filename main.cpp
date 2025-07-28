@@ -1,9 +1,4 @@
-#include<iostream>
-#include<cmath> 
-#include<random> 
-#include<vector> 
-
-using namespace std; 
+#include "simulation.h"
 
 double GRAVITATIONAL_CONSTANT = 6.67430 * pow(10, -11); 
 
@@ -18,6 +13,7 @@ double upperBoundPosition = 1;
 
 double lowerBoundVelocity = 0; 
 double upperBoundVelocity = 1; 
+
 // range distributor for initial values of mass, position and velocity of planet 
 uniform_real_distribution<double> massDistribution(lowerBoundMass, upperBoundMass);
 uniform_real_distribution<double> positionDistribution(lowerBoundPosition, upperBoundPosition);
@@ -28,102 +24,78 @@ double dt = 1;
 // array storing created planets 
 vector<Planet> planets(3); 
 
-int main (){
-/*
-------------------
-GLOBAL VARIABLES  |
-------------------
-
-double gravitationalConstant (universal gravitational constant)
-
-range massRange (the range for a planets possible mass)
-range positionRange (the range for a planets possible initial position)
-range velocityRange (the range for a planets possible initial velocity)
-
-array (of type Planet) Planets (stores all created planet objects for current simulatoin)
-
-double dt (the difference in time between velocity and position updates of planets )
-
-
----------
-CLASSES  |
----------
-
 class Planet {
+    double mass;
+    glm::vec3 position; 
+    glm::vec3 velocity; 
 
-    double mass 
-    vector position 
-    vector velocity 
+    Planet() {
+        mass = massDistribution(generator); 
 
-    constructor {
+        position = glm::vec3 ( 
+            positionDistribution(generator),
+            positionDistribution(generator),
+            positionDistribution(generator)); 
 
-        this.mass = number within massRange 
-        this.position = vector within positionRange 
-        this.velocity = vector within velocityRange 
-    
+        velocity = glm::vec3 ( 
+            velocityDistribution(generator),
+            velocityDistribution(generator),
+            velocityDistribution(generator)); 
     }
+}; 
 
-}
+vector<glm::Vec3> summation (){
 
-----------
-FUNCTIONS |
-----------
+    vector<glm::vec3> accelerations(3); 
+    
+    int currentAccel; 
 
-
-summation { // finds net acceleration on each planet 
-    i and j = 0 
-    array accelerations (corresponding to Planets array)
-
-    for planet i in Planets {
-        if (collisionChecker()) {
-            break; (end simulation!)
-        } else {
-            while (j < Planets.size) {
-                if ( j == i ) {
-                    continue; 
-                } else {
-                    a = FORMULA 
-                    add a to accelerations
-                }
+    for (int i = 0; i < planets.size(); i ++) {
+        currentAccel = 0; 
+        for (int j = 0; j < planets.size(); j++) {
+            if (i==j) {
+                continue;
+            } else {
+                currentAccel += GRAVITATIONAL_CONSTANT * 
+                ((planets[i].pos - planets[j].pos) / 
+                pow(planets[i].pos - planets[j].pos,3));  // MAGNITUDE TO POWER OF 3 --> BUILT IN FUNCTION? 
             }
         }
+        accelerations[i] = currentAccel; 
+    }
+    return accelerations; 
+}
 
-    return accelerations
+void solver () {
+    vector<glm::vec3> accelerations = summation(); 
+    int i = 0; 
+    for (Planet planet : planets) {
+        // is this correct and does this work for vec3 datatype? 
+        planet.velocity += accelerations[i] * dt; 
+        planet.position += planet.velocity[i] * dt; 
     }
 }
 
-solver { // reiman solver 
+bool collisionChecker(){
+    // add logic for collision checking (sum of radius between any two planets less than distance between )
 
-    for planet in Planets {
-        planet.velocity += accelerations[correspondingIndex] * dt 
-        planet.position += planet.velocity * dt (is this correct for a reiman approximation?)
+    return true; 
+}
+
+void populate (vector<Planet> vector, int num) {
+    int i = 0; 
+    while (i < num) {
+        Planet planet(); 
+        vector.add(planet); 
+        i++; 
     }
-
-}
-
-populate { // starts the simulation by creating 3 planet objects 
-
 }
 
 
------------------------
-MAIN PROGRAM STRUCTURE |
------------------------
 
-main {
-    populate()
+int main (){
+    populate(planets, 3); 
 
-    // for every unit of time dt run
-    summation()
-    solver()
-
-    
-}
-
-*/
-
-
-
-
-
+    // for every unit dt run... 
+    solver(); 
 }
