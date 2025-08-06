@@ -36,11 +36,10 @@ public:
 
     glm::vec3 position; 
     glm::vec3 velocity; 
-    
 
     Planet() {
         mass = massDistribution(generator); 
-        radius = radiusDistribution(generator)
+        radius = radiusDistribution(generator); 
 
         position = glm::vec3 ( 
             positionDistribution(generator),
@@ -51,8 +50,9 @@ public:
             velocityDistribution(generator),
             velocityDistribution(generator),
             velocityDistribution(generator)); 
-    }
+    };
 }; 
+
 
 vector<glm::vec3> summation (){
 
@@ -94,7 +94,11 @@ void solver () {
 bool collisionChecker(Planet planet1, Planet planet2){
 
     // get distance between planets 
-    double distance = abs(planet1.position - planet2.position); 
+    double distancex = abs(planet1.position.x - planet2.position.x); 
+    double distancey = abs(planet1.position.y - planet2.position.y);
+    double distancez = abs(planet1.position.z - planet2.position.z);
+
+    double distance = sqrt(pow(distancex, 2) + pow(distancey, 2) + pow(distancez, 2)); 
 
     // get sum of radisu of planets 
     double radiusSum = planet1.radius + planet2.radius; 
