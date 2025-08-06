@@ -1,12 +1,16 @@
 #include "simulation.h"
 
 double GRAVITATIONAL_CONSTANT = 6.67430 * pow(10, -11); 
+bool endSimulation = false; 
 
     // random number generator 
 default_random_engine generator(random_device{}()); 
 
 double lowerBoundMass = 0; 
 double upperBoundMass = 1; 
+
+double lowerBoundRadius = 0; 
+double upperBoundRadius = 1; 
 
 double lowerBoundPosition = 0; 
 double upperBoundPosition = 1; 
@@ -16,21 +20,27 @@ double upperBoundVelocity = 1;
 
 // range distributor for initial values of mass, position and velocity of planet 
 uniform_real_distribution<double> massDistribution(lowerBoundMass, upperBoundMass);
+uniform_real_distribution<double> radiusDistribution(lowerBoundRadius, upperBoundRadius);
 uniform_real_distribution<double> positionDistribution(lowerBoundPosition, upperBoundPosition);
 uniform_real_distribution<double> velocityDistribution(lowerBoundVelocity, upperBoundVelocity);
 
-double dt = 1; 
+float dt = 1; 
 
 // array storing created planets 
 vector<Planet> planets(3); 
 
 class Planet {
+public: 
     double mass;
+    double radius; 
+
     glm::vec3 position; 
     glm::vec3 velocity; 
+    
 
     Planet() {
         mass = massDistribution(generator); 
+        radius = radiusDistribution(generator)
 
         position = glm::vec3 ( 
             positionDistribution(generator),
@@ -44,7 +54,7 @@ class Planet {
     }
 }; 
 
-vector<glm::Vec3> summation (){
+vector<glm::vec3> summation (){
 
     vector<glm::vec3> accelerations(3); 
     
@@ -56,9 +66,13 @@ vector<glm::Vec3> summation (){
             if (i==j) {
                 continue;
             } else {
-                currentAccel += GRAVITATIONAL_CONSTANT * 
-                ((planets[i].pos - planets[j].pos) / 
-                pow(planets[i].pos - planets[j].pos,3));  // MAGNITUDE TO POWER OF 3 --> BUILT IN FUNCTION? 
+                if (collisionChecker(planets[i], planets[j])) {
+                    endSimulation = true;
+                } else {
+                    currentAccel += GRAVITATIONAL_CONSTANT * 
+                    ((planets[i].pos - planets[j].pos) / 
+                    pow(planets[i].pos - planets[j].pos,3));  // MAGNITUDE TO POWER OF 3 --> BUILT IN FUNCTION? 
+                }
             }
         }
         accelerations[i] = currentAccel; 
@@ -73,29 +87,37 @@ void solver () {
         // is this correct and does this work for vec3 datatype? 
         planet.velocity += accelerations[i] * dt; 
         planet.position += planet.velocity[i] * dt; 
+        i++; 
     }
 }
 
-bool collisionChecker(){
-    // add logic for collision checking (sum of radius between any two planets less than distance between )
+bool collisionChecker(Planet planet1, Planet planet2){
 
-    return true; 
+    // get distance between planets 
+    double distance = abs(planet1.position - planet2.position); 
+
+    // get sum of radisu of planets 
+    double radiusSum = planet1.radius + planet2.radius; 
+
+    // if distance < sum return true 
+    return distance < radiusSum;
 }
 
 void populate (vector<Planet> vector, int num) {
     int i = 0; 
     while (i < num) {
-        Planet planet(); 
-        vector.add(planet); 
+        Planet planet; 
+        vector.push_back(planet); 
         i++; 
     }
 }
 
-
-
 int main (){
     populate(planets, 3); 
 
-    // for every unit dt run... 
-    solver(); 
+    while (!endSimulation) {
+        solver(); 
+        std::this_thread::sleep_for(std::chrono::milliseconds(dt)); 
+    }
+    
 }
