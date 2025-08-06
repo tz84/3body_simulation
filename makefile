@@ -1,5 +1,5 @@
 CC := clang++
-CCFLAG := -std=c++17 -I/opt/homebrew/include
+CCFLAG := -std=c++17 -Iglm
 
 all: app 
 
