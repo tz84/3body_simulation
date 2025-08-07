@@ -3,7 +3,7 @@
 double GRAVITATIONAL_CONSTANT = 6.67430 * pow(10, -11); 
 bool endSimulation = false; 
 
-    // random number generator 
+// random number generator 
 default_random_engine generator(random_device{}()); 
 
 double lowerBoundMass = 0; 
@@ -24,10 +24,7 @@ uniform_real_distribution<double> radiusDistribution(lowerBoundRadius, upperBoun
 uniform_real_distribution<double> positionDistribution(lowerBoundPosition, upperBoundPosition);
 uniform_real_distribution<double> velocityDistribution(lowerBoundVelocity, upperBoundVelocity);
 
-float dt = 1; 
-
-// array storing created planets 
-vector<Planet> planets(3); 
+int dt = 1; 
 
 class Planet {
 public: 
@@ -53,15 +50,15 @@ public:
     };
 }; 
 
+// array storing created planets 
+vector<Planet> planets(3); 
 
 vector<glm::vec3> summation (){
 
     vector<glm::vec3> accelerations(3); 
-    
-    int currentAccel; 
 
     for (int i = 0; i < planets.size(); i ++) {
-        currentAccel = 0; 
+        glm::vec3 currentAccel(0,0,0); 
         for (int j = 0; j < planets.size(); j++) {
             if (i==j) {
                 continue;
@@ -70,8 +67,8 @@ vector<glm::vec3> summation (){
                     endSimulation = true;
                 } else {
                     currentAccel += GRAVITATIONAL_CONSTANT * 
-                    ((planets[i].pos - planets[j].pos) / 
-                    pow(planets[i].pos - planets[j].pos,3));  // MAGNITUDE TO POWER OF 3 --> BUILT IN FUNCTION? 
+                    ((planets[i].position - planets[j].position) / 
+                    pow(planets[i].position - planets[j].position,3));  // MAGNITUDE TO POWER OF 3 --> BUILT IN FUNCTION? 
                 }
             }
         }
@@ -98,7 +95,9 @@ bool collisionChecker(Planet planet1, Planet planet2){
     double distancey = abs(planet1.position.y - planet2.position.y);
     double distancez = abs(planet1.position.z - planet2.position.z);
 
-    double distance = sqrt(pow(distancex, 2) + pow(distancey, 2) + pow(distancez, 2)); 
+    glm::vec3 vector(distancex, distancey, distancez); 
+
+    double distance = glm::length(vector); 
 
     // get sum of radisu of planets 
     double radiusSum = planet1.radius + planet2.radius; 
