@@ -68,7 +68,7 @@ vector<glm::vec3> summation (){
                 } else {
                     glm::vec3 vector = planets[j].position - planets[i].position; 
                     float vector_magnitude = glm::length(vector); 
-                    currentAccel += GRAVITATIONAL_CONSTANT * planets[j].mass * vector / pow(vector_magnitude,3); 
+                    currentAccel += GRAVITATIONAL_CONSTANT * planets[j].mass * vector / float(pow(vector_magnitude,3)); 
                 }
             }
         }
