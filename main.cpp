@@ -19,10 +19,10 @@ double lowerBoundVelocity = 0;
 double upperBoundVelocity = 1; 
 
 // range distributor for initial values of mass, position and velocity of planet 
-uniform_real_distribution<double> massDistribution(lowerBoundMass, upperBoundMass);
-uniform_real_distribution<double> radiusDistribution(lowerBoundRadius, upperBoundRadius);
-uniform_real_distribution<double> positionDistribution(lowerBoundPosition, upperBoundPosition);
-uniform_real_distribution<double> velocityDistribution(lowerBoundVelocity, upperBoundVelocity);
+uniform_real_distribution<float> massDistribution(lowerBoundMass, upperBoundMass);
+uniform_real_distribution<float> radiusDistribution(lowerBoundRadius, upperBoundRadius);
+uniform_real_distribution<float> positionDistribution(lowerBoundPosition, upperBoundPosition);
+uniform_real_distribution<float> velocityDistribution(lowerBoundVelocity, upperBoundVelocity);
 
 float dt = 1.0f; 
 
@@ -51,11 +51,11 @@ public:
 }; 
 
 // array storing created planets 
-vector<Planet> planets(3); 
+vector<Planet> planets; 
 
 vector<glm::vec3> summation (){
 
-    vector<glm::vec3> accelerations(3); 
+    vector<glm::vec3> accelerations(planets.size()); 
 
     for (int i = 0; i < planets.size(); i ++) {
         glm::vec3 currentAccel(0,0,0); 
@@ -67,7 +67,7 @@ vector<glm::vec3> summation (){
                     endSimulation = true;
                 } else {
                     glm::vec3 vector = planets[j].position - planets[i].position; 
-                    double vector_magnitude = glm::length(vector); 
+                    float vector_magnitude = glm::length(vector); 
                     currentAccel += GRAVITATIONAL_CONSTANT * planets[j].mass * vector / pow(vector_magnitude,3); 
                 }
             }
@@ -87,14 +87,7 @@ void solver () {
 
 bool collisionChecker(Planet planet1, Planet planet2){
 
-    // get distance between planets 
-    double distancex = abs(planet1.position.x - planet2.position.x); 
-    double distancey = abs(planet1.position.y - planet2.position.y);
-    double distancez = abs(planet1.position.z - planet2.position.z);
-
-    glm::vec3 vector(distancex, distancey, distancez); 
-
-    double distance = glm::length(vector); 
+    double distance = glm::length(planet1.position - planet2.position); 
 
     // get sum of radisu of planets 
     double radiusSum = planet1.radius + planet2.radius; 
@@ -117,7 +110,7 @@ int main (){
 
     while (!endSimulation) {
         solver(); 
-        std::this_thread::sleep_for(std::chrono::milliseconds(dt)); 
+        std::this_thread::sleep_for(std::chrono::milliseconds((int)dt)); 
     }
     
 }
