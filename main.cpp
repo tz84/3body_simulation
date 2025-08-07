@@ -103,7 +103,7 @@ bool collisionChecker(Planet planet1, Planet planet2){
     return distance < radiusSum;
 }
 
-void populate (vector<Planet> vector, int num) {
+void populate (vector<Planet>& vector, int num) {
     int i = 0; 
     while (i < num) {
         Planet planet; 
