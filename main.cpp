@@ -1,6 +1,6 @@
 #include "simulation.h"
 
-double GRAVITATIONAL_CONSTANT = 6.67430 * pow(10, -11); 
+float GRAVITATIONAL_CONSTANT = 6.67430 * pow(10, -11); 
 bool endSimulation = false; 
 
 // random number generator 
@@ -24,12 +24,12 @@ uniform_real_distribution<double> radiusDistribution(lowerBoundRadius, upperBoun
 uniform_real_distribution<double> positionDistribution(lowerBoundPosition, upperBoundPosition);
 uniform_real_distribution<double> velocityDistribution(lowerBoundVelocity, upperBoundVelocity);
 
-int dt = 1; 
+float dt = 1.0f; 
 
 class Planet {
 public: 
-    double mass;
-    double radius; 
+    float mass;
+    float radius; 
 
     glm::vec3 position; 
     glm::vec3 velocity; 
@@ -66,9 +66,9 @@ vector<glm::vec3> summation (){
                 if (collisionChecker(planets[i], planets[j])) {
                     endSimulation = true;
                 } else {
-                    currentAccel += GRAVITATIONAL_CONSTANT * 
-                    ((planets[i].position - planets[j].position) / 
-                    pow(planets[i].position - planets[j].position,3));  // MAGNITUDE TO POWER OF 3 --> BUILT IN FUNCTION? 
+                    glm::vec3 vector = planets[j].position - planets[i].position; 
+                    double vector_magnitude = glm::length(vector); 
+                    currentAccel += GRAVITATIONAL_CONSTANT * planets[j].mass * vector / pow(vector_magnitude,3); 
                 }
             }
         }
@@ -79,12 +79,9 @@ vector<glm::vec3> summation (){
 
 void solver () {
     vector<glm::vec3> accelerations = summation(); 
-    int i = 0; 
-    for (Planet planet : planets) {
-        // is this correct and does this work for vec3 datatype? 
-        planet.velocity += accelerations[i] * dt; 
-        planet.position += planet.velocity[i] * dt; 
-        i++; 
+    for (int i = 0; i < planets.size(); i++) {
+        planets[i].velocity += accelerations[i] * dt; 
+        planets[i].position += planets[i].velocity * dt; 
     }
 }
 
