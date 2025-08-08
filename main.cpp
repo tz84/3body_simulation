@@ -53,6 +53,8 @@ public:
 // array storing created planets 
 vector<Planet> planets; 
 
+bool collisionChecker(Planet planet1, Planet planet2);
+
 vector<glm::vec3> summation (){
 
     vector<glm::vec3> accelerations(planets.size()); 
@@ -74,7 +76,7 @@ vector<glm::vec3> summation (){
         }
         accelerations[i] = currentAccel; 
     }
-    return accelerations; 
+    return accelerations;  
 }
 
 void solver () {
@@ -106,6 +108,28 @@ void populate (vector<Planet>& vector, int num) {
 }
 
 int main (){
+
+    // GLFW Initialization
+    glfwInit(); 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); 
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
+
+    GLFWwindow* window = glfwCreateWindow(650, 650, "Simulation", NULL, NULL);
+    
+    if (window == NULL) {
+        glfwTerminate();
+        return -1;
+    }
+    
+    glfwMakeContextCurrent(window);
+    
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        return -1;
+    } 
+
+
+
     populate(planets, 3); 
 
     while (!endSimulation) {
